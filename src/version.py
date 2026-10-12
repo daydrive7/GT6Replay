@@ -1,0 +1,2 @@
+APP_NAME = "GT6Replay"
+VERSION = "0.1.0"

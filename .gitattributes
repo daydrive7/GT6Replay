@@ -1,0 +1,5 @@
+* text=auto eol=lf
+LICENSES/** -text
+Qt-*.txt -text
+Python-LICENSE.txt -text
+PDTools-MIT.txt -text
