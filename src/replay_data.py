@@ -42,7 +42,10 @@ def _text(data: bytes) -> str:
 def _sfo(path: Path) -> dict:
     if not path.is_file():
         return {}
-    data = path.read_bytes()
+    with path.open("rb") as stream:
+        data = stream.read(1024**2 + 1)
+    if len(data) > 1024**2:
+        raise ReplayError("PARAM.SFO exceeds the supported size.")
     if len(data) < 20 or data[:4] != b"\x00PSF":
         raise ReplayError("PARAM.SFO has an invalid PSF header.")
     _, _, key_offset, data_offset, count = struct.unpack_from("<4s4I", data)
@@ -225,6 +228,24 @@ def _parse_native(data: bytes, sfo: dict, warnings: list[str]) -> tuple[dict, li
     return (metadata, entries)
 
 
+def replay_from_bytes(data, source, source_type, files, sfo=None, protected=False):
+    warnings = []
+    metadata, entries = _parse_native(data, sfo or {}, warnings)
+    return {
+        "source_path": str(Path(source).resolve()),
+        "source_type": source_type,
+        "native_sha256": hashlib.sha256(data).hexdigest(),
+        "protected": protected,
+        "metadata": metadata,
+        "entries": entries,
+        "files": list(files),
+        "warnings": warnings,
+        "frames": [],
+        "native_decode_available": False,
+        "decode_reason": _DECODE_REASON,
+    }
+
+
 def load_replay(path):
     if path == "":
         raise ReplayError("Choose a replay file or save folder.")
@@ -265,20 +286,7 @@ def load_replay(path):
         )
         decoded.append(data)
     data = b"".join(decoded)
-    metadata, entries = _parse_native(data, sfo, warnings)
-    return {
-        "source_path": str(source),
-        "source_type": source_type,
-        "native_sha256": hashlib.sha256(data).hexdigest(),
-        "protected": False,
-        "metadata": metadata,
-        "entries": entries,
-        "files": files,
-        "warnings": warnings,
-        "frames": [],
-        "native_decode_available": False,
-        "decode_reason": _DECODE_REASON,
-    }
+    return replay_from_bytes(data, source, source_type, files, sfo)
 
 
 inspect_replay = load_replay

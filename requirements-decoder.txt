@@ -1,0 +1,4 @@
+-r requirements.txt
+cryptography==48.0.1
+cffi==2.0.0
+pycparser==3.0

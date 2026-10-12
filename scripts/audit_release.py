@@ -1,5 +1,5 @@
 from pathlib import Path
-import argparse, re
+import argparse, re, json
 
 ROOT = Path(__file__).resolve().parents[1]
 FORBIDDEN_SUFFIX = {".gt6r", ".rply", ".self", ".elf", ".pfd", ".sfo", ".bin"}
@@ -9,6 +9,16 @@ PATTERNS = [
     r"\b_SYSCON_KEY\b",
     r"\b_SECURE_FILE_ID\b",
 ]
+
+
+def contains_key_configuration(path):
+    if path.suffix.lower() != ".json" or path.stat().st_size > 1024**2:
+        return False
+    try:
+        value = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (ValueError, OSError):
+        return False
+    return isinstance(value, dict) and "portability_key" in value and "secure_file_id" in value
 
 
 def source_files():
@@ -28,6 +38,8 @@ def audit_source():
         count += 1
         if path.suffix.lower() in FORBIDDEN_SUFFIX:
             errors.append(str(path.relative_to(ROOT)))
+        if contains_key_configuration(path):
+            errors.append(str(path.relative_to(ROOT)) + ": savedata key configuration")
         if (
             "LICENSES" in path.parts
             or path.name.endswith("LICENSE.txt")
@@ -60,6 +72,8 @@ def audit_package(directory):
         count += 1
         if path.suffix.lower() in FORBIDDEN_SUFFIX or re.fullmatch(r"REPLAY\.\d+", path.name, re.I):
             errors.append(str(path))
+        if contains_key_configuration(path) or path.name.casefold() == "settings.json":
+            errors.append("Local decoder configuration: " + str(path))
         if (
             path.name.lower().startswith("qt6")
             and path.suffix.lower() == ".dll"
