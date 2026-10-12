@@ -61,7 +61,7 @@ class ProgramTests(unittest.TestCase):
 
     def test_shared_settings_contain_only_key_file_location(self):
         configure_key_file(self.keys)
-        self.assertEqual(key_file_path(), self.keys)
+        self.assertEqual(key_file_path(), self.keys.resolve())
         self.assertEqual(load_keys(), self.key_values)
         text = (self.directory / "local/GT6Replay/settings.json").read_text()
         self.assertNotIn(self.key_values.file_id.hex(), text)
