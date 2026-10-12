@@ -14,7 +14,8 @@ The target is a free, maintainable local converter: open an original GT6 replay 
 
 - Implemented: bounded bit reader; PFD entry reader; independently written savedata decryption with supplied keys; consecutive-chunk assembly and fingerprints; version-115 seek index and version-49 encoding-parameter reader; absolute transform reader; full-archive comparison tool.
 - Verified locally: one protected five-chunk export decrypts byte-for-byte to the reference; all 32 slot parameter sets match; 721 absolute transforms at 94 checkpoints match position, velocity, and orientation exactly.
-- Remaining: independent traversal of complete snapshot packets, compressed updates and prediction state, all-driver frame assembly, RPM/gear/lap decoding, automatic protected-save configuration, viewer integration, additional real-replay coverage, and release packaging.
+- Available as programs: a standalone desktop utility and CLI, a dedicated build target, separate packaging, a viewer Decoder menu, shared savedata configuration, and encrypted race-metadata import. The utilities export RPLY data and race reports; they do not export motion archives.
+- Remaining: independent traversal of complete snapshot packets, compressed updates and prediction state, all-driver frame assembly, RPM/gear/lap decoding, automatic protected-save configuration, motion conversion in the viewer, additional real-replay coverage, and final release packaging.
 
 The checkpoint comparison uses the private reference decoder to identify transform packet boundaries. Those locations are not built into the independent reader. It is not an independent full replay conversion yet.
 

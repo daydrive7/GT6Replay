@@ -19,6 +19,10 @@ MAX_REPLAY_BYTES = 512 * 1024**2
 MAX_PFD_BYTES = 1024**2
 
 
+class SavedataKeyRequired(DecodeError):
+    pass
+
+
 @dataclass(frozen=True)
 class SavedataKeys:
     portability: bytes
@@ -193,7 +197,10 @@ def read_export(path, keys: SavedataKeys | None = None) -> ReplayBytes:
         if expected != actual:
             raise DecodeError("Replay chunks do not match PARAM.PFD.")
         if keys is None:
-            raise DecodeError("The development savedata reader requires a key configuration.")
+            raise SavedataKeyRequired(
+                "Encrypted exports require a savedata key configuration. "
+                "Choose a key file in Tools or use --keys PATH."
+            )
     decoded, fingerprints = [], []
     for number in range(len(chunks)):
         chunk = chunks[number]

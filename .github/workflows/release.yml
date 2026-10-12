@@ -11,11 +11,16 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.13'
+      - name: Require a release version
+        run: |
+          $replayVersion = python -c "import sys; sys.path.insert(0, 'src'); from version import VERSION; print(VERSION)"
+          if ($replayVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Development builds must not be published as releases.' }
       - run: ./scripts/build.ps1
       - run: python scripts/package_release.py
-      - name: Create draft 0.1.0 release
+      - name: Create draft release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $replayReleaseFiles = @((Get-ChildItem release -File -Filter '*.zip').FullName) + @('release/SHA256SUMS.txt') + @((Get-ChildItem release/third-party-sources -File -Filter '*.tar.xz').FullName)
-          gh release create v0.1.0 --draft --target $env:GITHUB_SHA --title '0.1.0 Release' --notes-file RELEASE_NOTES.md @replayReleaseFiles
+          $replayVersion = python -c "import sys; sys.path.insert(0, 'src'); from version import VERSION; print(VERSION)"
+          gh release create "v$replayVersion" --draft --target $env:GITHUB_SHA --title "$replayVersion Release" --notes-file RELEASE_NOTES.md @replayReleaseFiles

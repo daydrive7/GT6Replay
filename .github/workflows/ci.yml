@@ -25,5 +25,19 @@ jobs:
       - run: python scripts/package_release.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: GT6Replay-0.1.0
-          path: release/
+          name: GT6Replay-development
+          path: release-dev/
+  decoder:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - run: ./scripts/build_decoder.ps1
+      - run: python scripts/package_release.py --decoder-only
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: GT6ReplayDecoder-development
+          path: release-dev/

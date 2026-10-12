@@ -5,6 +5,8 @@ import os
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 import sys
 import unittest
+import tempfile
+import json
 from pathlib import Path
 from unittest.mock import patch
 from types import SimpleNamespace
@@ -60,6 +62,49 @@ class AppTests(unittest.TestCase):
         self.assertEqual(self.window.index, 119)
         self.window.restart()
         self.assertEqual(self.window.index, 0)
+
+    def test_decoder_menu_launches_the_separate_program(self):
+        with patch("app.launch_decoder") as launch:
+            self.window.decoder_action.trigger()
+            launch.assert_called_once()
+
+    def test_encrypted_race_metadata_uses_integrated_decoder(self):
+        from test_decoder import encryption_fixture, pfd_fixture
+        from smoke_decoder import replay_fixture
+        from decoder.settings import configure_key_file
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            folder = root / "original"
+            folder.mkdir()
+            keys, ciphertext, record = encryption_fixture(replay_fixture())
+            (folder / "REPLAY.0").write_bytes(ciphertext)
+            (folder / "PARAM.PFD").write_bytes(pfd_fixture([record]))
+            key_file = root / "keys.json"
+            key_file.write_text(
+                json.dumps(
+                    {
+                        "portability_key": keys.portability.hex(),
+                        "secure_file_id": keys.file_id.hex(),
+                    }
+                )
+            )
+            with patch.dict(
+                os.environ,
+                {
+                    "LOCALAPPDATA": str(root / "local"),
+                    "GT6REPLAY_KEY_FILE": "",
+                    "GT6REPLAY_DECODER": "",
+                },
+            ):
+                configure_key_file(key_file)
+                with patch("app.QMessageBox.warning") as warning:
+                    self.window.load_save(folder)
+                    self.assertTrue(self.window.worker.wait(5000))
+                    self.application.processEvents()
+                    warning.assert_not_called()
+                self.assertEqual(self.window.entries_table.item(0, 1).text(), "Synthetic driver")
+                self.assertIsNone(self.window.native_document)
 
     def test_race_labels_render_untrusted_text_as_plain_text(self):
         replay = {

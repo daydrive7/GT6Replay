@@ -6,6 +6,9 @@ Application code is covered by `LICENSE`. Dependency notices are in `LICENSES`, 
 | --- | --- | --- |
 | Python | 3.13 | PSF; `Python-LICENSE.txt`; [source](https://www.python.org/downloads/source/) |
 | NumPy | 2.4.4 | BSD and included numerical-library notices; `LICENSES/numpy`; [source](https://github.com/numpy/numpy/tree/v2.4.4) |
+| cryptography | 48.0.1 | Apache-2.0 or BSD-3-Clause; `LICENSES/cryptography`; [source](https://github.com/pyca/cryptography/tree/48.0.1) |
+| CFFI / pycparser | 2.0.0 / 3.0 | BSD notices in `LICENSES/cffi`, `LICENSES/pycparser` |
+| OpenSSL | Versions used by Python and cryptography | Apache-2.0; matching notices in `LICENSES/OpenSSL`; [source](https://github.com/openssl/openssl) |
 | PySide6 / Shiboken6 | 6.11.0 | LGPLv3 option; `LICENSES/PySide6*`, `LICENSES/shiboken6` |
 | Qt Base, SVG, Image Formats | 6.11.0 | LGPLv3 and included third-party notices; `Qt-LGPL-3.0-only.txt`, `LICENSES/Qt-Sources` |
 | PyInstaller | 6.22.3 | GPL with bootloader exception; `LICENSES/pyinstaller`; [source](https://github.com/pyinstaller/pyinstaller/tree/v6.22.3) |

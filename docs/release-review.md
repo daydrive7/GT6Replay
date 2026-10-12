@@ -2,7 +2,7 @@
 
 This review identifies engineering boundaries; it is not legal clearance or a guarantee against a claim.
 
-The public repository contains the independently developed viewer, a decrypted-header parser, a published telemetry-protocol implementation, and an external-decoder interface. It excludes the research converter's translated engine instructions, extracted executables, processor job images, savedata decryption keys, game catalogue, game assets, original replays, personal captures, and local research paths. No official logo or game screenshot is used.
+The public repository contains the independently developed viewer, standalone savedata utility, decrypted-header and motion-parameter readers, a published telemetry-protocol implementation, and an external motion-decoder interface. Savedata keys are supplied locally by the user. It excludes the research converter's translated engine instructions, extracted executables, processor job images, savedata keys, game catalogue, game assets, original replays, personal captures, and local research paths. No official logo or game screenshot is used.
 
 The absence of support for a game does not remove copyright or trademark protection. EU interoperability exceptions have conditions, including necessity and limits on disclosure and reuse; see [Directive 2009/24/EC, Articles 5 and 6](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0024). U.S. anti-circumvention and interoperability rules also have conditions; see [17 U.S.C. §1201](https://www.copyright.gov/title17/92chap12.html). An exception is not a blanket permission to redistribute an extracted or translated game engine.
 

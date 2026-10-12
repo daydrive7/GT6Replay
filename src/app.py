@@ -59,7 +59,11 @@ from local_converter import (
     find_local_converter,
     convert_path,
     cache_directory,
+    has_motion_converter,
+    launch_decoder,
 )
+from decoder.operations import inspect_input
+from decoder.settings import configure_key_file
 from version import APP_NAME, VERSION
 from results import ResultItem, HEADERS, result_values
 
@@ -769,6 +773,9 @@ class MainWindow(QMainWindow):
                 )
         self.setWindowTitle(f"{APP_NAME} {VERSION}")
         self.setWindowIcon(QIcon(str(Path(__file__).parent / "assets/icon.svg")))
+        tools_menu = self.menuBar().addMenu("Tools")
+        self.decoder_action = tools_menu.addAction("Replay decoder…", self.open_decoder)
+        tools_menu.addAction("Choose savedata key file…", self.choose_decoder_keys)
         help_menu = self.menuBar().addMenu("Help")
         help_menu.addAction(
             "About GT6Replay",
@@ -1051,6 +1058,24 @@ class MainWindow(QMainWindow):
         if path:
             self.load_save(path)
 
+    def open_decoder(self):
+        try:
+            launch_decoder(app_directory())
+        except (ValueError, OSError) as error:
+            QMessageBox.warning(self, "Decoder could not be opened", str(error))
+
+    def choose_decoder_keys(self):
+        if self.busy():
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Choose savedata key configuration", "", "JSON (*.json)"
+        )
+        if path:
+            try:
+                configure_key_file(path)
+            except (ValueError, OSError) as error:
+                QMessageBox.warning(self, "Key file could not be used", str(error))
+
     def load_save(self, path):
         if self.busy() or not self.confirm_unsaved():
             return
@@ -1069,13 +1094,15 @@ class MainWindow(QMainWindow):
             try:
                 replay = load_replay(path)
             except EncryptedReplayError:
-                native = convert_path(path, progress)
-                return (native.replay, native)
+                if has_motion_converter():
+                    native = convert_path(path, progress, program_directory=app_directory())
+                    return (native.replay, native)
+                replay = inspect_input(path, progress=progress)[1]["replay"]
             native = next(
                 (n for directory in directories if (n := find_native_replay(replay, directory))),
                 None,
             )
-            if native is None and find_local_converter():
+            if native is None and has_motion_converter():
                 native = convert_local_replay(replay, app_directory(), progress)
             return (replay, native)
 
@@ -1641,7 +1668,8 @@ def main():
         return run(sys.argv[2], sys.argv[3])
     if len(sys.argv) == 4 and sys.argv[1] == "--verify-save":
         Path(sys.argv[3]).write_text(
-            json.dumps(load_replay(sys.argv[2]), ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(inspect_input(sys.argv[2])[1]["replay"], ensure_ascii=False, indent=2),
+            encoding="utf-8",
         )
         return 0
     if len(sys.argv) == 4 and sys.argv[1] == "--verify-native":
