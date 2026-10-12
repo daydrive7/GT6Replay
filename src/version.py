@@ -1,2 +1,2 @@
 APP_NAME = "GT6Replay"
-VERSION = "0.2.0-dev"
+VERSION = "0.2.0-beta.1"

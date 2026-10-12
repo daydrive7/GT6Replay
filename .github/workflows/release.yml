@@ -1,8 +1,17 @@
 name: Prepare release
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: Prepare an alpha, beta, or release-candidate prerelease
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: write
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
 jobs:
   release:
     runs-on: windows-latest
@@ -11,16 +20,36 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.13'
-      - name: Require a release version
+      - name: Validate release version
+        env:
+          REPLAY_PRERELEASE: ${{ inputs.prerelease }}
         run: |
+          $ErrorActionPreference = 'Stop'
           $replayVersion = python -c "import sys; sys.path.insert(0, 'src'); from version import VERSION; print(VERSION)"
-          if ($replayVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Development builds must not be published as releases.' }
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot read application version.' }
+          if ($env:REPLAY_PRERELEASE -eq 'true') {
+            if ($replayVersion -notmatch '^\d+\.\d+\.\d+-(alpha|beta|rc)\.\d+$') { throw 'Prereleases require an alpha, beta, or rc version.' }
+            $replayReleaseDirectory = 'release-dev'
+            $replayReleaseStage = @{ alpha = 'Alpha'; beta = 'Beta'; rc = 'Release Candidate' }[$Matches[1]]
+            $replayReleaseTitle = ($replayVersion -split '-')[0] + ' ' + $replayReleaseStage
+          } else {
+            if ($replayVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Stable releases require a stable version.' }
+            $replayReleaseDirectory = 'release'
+            $replayReleaseTitle = "$replayVersion Release"
+          }
+          "REPLAY_VERSION=$replayVersion" >> $env:GITHUB_ENV
+          "REPLAY_RELEASE_DIRECTORY=$replayReleaseDirectory" >> $env:GITHUB_ENV
+          "REPLAY_RELEASE_TITLE=$replayReleaseTitle" >> $env:GITHUB_ENV
       - run: ./scripts/build.ps1
       - run: python scripts/package_release.py
       - name: Create draft release
         env:
           GH_TOKEN: ${{ github.token }}
+          REPLAY_PRERELEASE: ${{ inputs.prerelease }}
         run: |
-          $replayReleaseFiles = @((Get-ChildItem release -File -Filter '*.zip').FullName) + @('release/SHA256SUMS.txt') + @((Get-ChildItem release/third-party-sources -File -Filter '*.tar.xz').FullName)
-          $replayVersion = python -c "import sys; sys.path.insert(0, 'src'); from version import VERSION; print(VERSION)"
-          gh release create "v$replayVersion" --draft --target $env:GITHUB_SHA --title "$replayVersion Release" --notes-file RELEASE_NOTES.md @replayReleaseFiles
+          $ErrorActionPreference = 'Stop'
+          $replayReleaseFiles = @((Get-ChildItem $env:REPLAY_RELEASE_DIRECTORY -File -Filter '*.zip').FullName) + @("$env:REPLAY_RELEASE_DIRECTORY/SHA256SUMS.txt") + @((Get-ChildItem "$env:REPLAY_RELEASE_DIRECTORY/third-party-sources" -File -Filter '*.tar.xz').FullName)
+          $replayReleaseOptions = @()
+          if ($env:REPLAY_PRERELEASE -eq 'true') { $replayReleaseOptions = @('--prerelease', '--latest=false') }
+          gh release create "v$env:REPLAY_VERSION" --draft --target $env:GITHUB_SHA --title $env:REPLAY_RELEASE_TITLE --notes-file RELEASE_NOTES.md @replayReleaseOptions @replayReleaseFiles
+          if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed.' }

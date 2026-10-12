@@ -12,6 +12,8 @@ The target is a free, maintainable local converter: open an original GT6 replay 
 
 ## Development status
 
+0.2.0 Beta packages the current savedata decryption, metadata decoding, and standalone utilities. Course and car IDs remain numeric. The beta does not satisfy the full-motion acceptance criteria below; 0.1.0 remains the stable release.
+
 - Implemented: bounded bit reader; PFD entry reader; independently written savedata decryption with supplied keys; consecutive-chunk assembly and fingerprints; version-115 seek index and version-49 encoding-parameter reader; absolute transform reader; full-archive comparison tool.
 - Verified locally: one protected five-chunk export decrypts byte-for-byte to the reference; all 32 slot parameter sets match; 721 absolute transforms at 94 checkpoints match position, velocity, and orientation exactly.
 - Available as programs: a standalone desktop utility and CLI, a dedicated build target, separate packaging, a viewer Decoder menu, shared savedata configuration, and encrypted race-metadata import. The utilities export RPLY data and race reports; they do not export motion archives.

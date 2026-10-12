@@ -1,6 +1,6 @@
 # GT6Replay
 
-GT6Replay is a Windows viewer for decoded Gran Turismo 6 replays. It displays a track map, schematic 3D car motion, telemetry, and sortable race results. This branch develops 0.2.0; the published release remains 0.1.0.
+GT6Replay is a Windows viewer for decoded Gran Turismo 6 replays. It displays a track map, schematic 3D car motion, telemetry, and sortable race results. The [0.2.0 Beta](https://github.com/daydrive7/GT6Replay/releases/tag/v0.2.0-beta.1) includes the standalone decoder utility; 0.1.0 remains the stable release.
 
 ## Supported inputs
 
@@ -9,7 +9,7 @@ GT6Replay is a Windows viewer for decoded Gran Turismo 6 replays. It displays a 
 - Decrypted RPLY version 115 files: race metadata and results.
 - Original PS3 save folders: playback when a matching decoded file is available; encrypted race metadata can be read with a configured savedata key file.
 
-**Full-motion conversion is not implemented yet.** The development package includes a standalone decoder utility for decrypted RPLY export and race reports. Opening an unconverted export provides race metadata, not car motion. The package includes no game executable, translated game code, savedata keys, game assets, or replay files. The viewer does not reproduce GT6's original graphics, sound, or replay cameras. Native accelerator and brake channels are not mapped.
+**Full-motion conversion is not implemented yet.** The beta includes a standalone decoder utility for decrypted RPLY export and race reports. Opening an unconverted export provides race metadata. Course and car identifiers are shown as IDs; a name catalogue is not included. The package includes no game executable, translated game code, savedata keys, game assets, or replay files. The viewer does not reproduce GT6's original graphics, sound, or replay cameras. Native accelerator and brake channels are not mapped.
 
 ## Use
 
@@ -28,7 +28,7 @@ Click any results header to sort. Position, times, gap, and laps sort numericall
 
 ## External decoders
 
-**Tools → Replay decoder** opens the separate `GT6ReplayDecoder.exe` program included with development builds. It can also be downloaded or built on its own. **Tools → Choose savedata key file** shares the selected configuration with the utility and enables encrypted race-metadata imports. See the [decoder guide](docs/decoder.md) for desktop use, CLI arguments, and its independent build command.
+**Tools → Replay decoder** opens the separate `GT6ReplayDecoder.exe` program included with the beta. It can also be downloaded or built on its own. **Tools → Choose savedata key file** shares the selected configuration with the utility and enables encrypted race-metadata imports. See the [decoder guide](docs/decoder.md) for desktop use, CLI arguments, and its independent build command.
 
 Set `GT6REPLAY_DECODER` to a trusted decoder executable or Python script, or start `GT6Replay.exe --decoder PATH`. The viewer runs it with `--input PATH --output PATH`; it must produce a valid `.gt6r` file. Configuring a decoder allows the program to execute that tool. Python decoders need Python installed separately.
 
@@ -38,7 +38,7 @@ Decoded files are cached under the current user's application-data directory. Sa
 
 Requires Python 3.13. Install `requirements-decoder.txt` for development and tests, then run `python src/app.py`. Run tests with `python -m unittest discover -s tests -v`. `scripts/build.ps1` builds the Windows folder and checks the release contents; `scripts/package_release.py` prepares the ZIP and checksums.
 
-`scripts/build_decoder.ps1` builds only the standalone decoder. `scripts/build.ps1` builds both programs and includes the decoder in the viewer folder. `scripts/package_release.py --decoder-only` packages the standalone utility separately. Development artifacts are labelled `0.2.0-dev`; the release workflow rejects development version strings.
+`scripts/build_decoder.ps1` builds only the standalone decoder. `scripts/build.ps1` builds both programs and includes the decoder in the viewer folder. `scripts/package_release.py --decoder-only` packages the standalone utility separately. Beta artifacts are labelled `0.2.0-beta.1`. The release workflow requires its prerelease option for beta versions and rejects development versions.
 
 The independent motion codec is being developed for 0.2.0. Its current container and absolute-transform readers do not yet convert a complete replay. See the [0.2.0 roadmap](docs/roadmap-0.2.0.md) and [replay codec documentation](docs/replay-codec.md). The released 0.1.0 viewer remains unchanged and still requires decoded motion or an external decoder.
 

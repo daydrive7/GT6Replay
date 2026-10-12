@@ -1,8 +1,8 @@
 # GT6Replay Decoder
 
-GT6Replay Decoder is a separate desktop program and command-line utility. It can be built without building the viewer. The viewer development package also includes it under `Decoder/` and opens it through **Tools → Replay decoder**.
+GT6Replay Decoder is a separate desktop program and command-line utility. It can be built without building the viewer. The 0.2.0 Beta viewer package also includes it under `Decoder/` and opens it through **Tools → Replay decoder**.
 
-**This development build exports decrypted RPLY data and race reports. It cannot yet produce full-motion `.gt6r` archives.** Building an executable does not complete the unfinished motion codec.
+**This beta exports decrypted RPLY data and race reports. It cannot yet produce full-motion `.gt6r` archives.** Course and car identifiers are displayed as IDs; a name catalogue is not included.
 
 ## Desktop program
 
