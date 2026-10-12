@@ -34,7 +34,9 @@ Decoded files are cached under the current user's application-data directory. Sa
 
 ## Development
 
-Requires Python 3.13. Install `requirements.txt`, then run `python src/app.py`. Run tests with `python -m unittest discover -s tests -v`. `scripts/build.ps1` builds the Windows folder and checks the release contents; `scripts/package_release.py` prepares the ZIP and checksums.
+Requires Python 3.13. Install `requirements-decoder.txt` for development and tests, then run `python src/app.py`. Run tests with `python -m unittest discover -s tests -v`. `scripts/build.ps1` builds the Windows folder and checks the release contents; `scripts/package_release.py` prepares the ZIP and checksums.
+
+An independent decoder is being developed for 0.2.0. Its current container and absolute-transform readers are component implementations; they do not yet convert a complete replay. See the [0.2.0 roadmap](docs/roadmap-0.2.0.md) and [replay codec documentation](docs/replay-codec.md). The released 0.1.0 viewer still requires decoded motion or an external decoder.
 
 See [testing](docs/testing.md), [file format](docs/format.md), [release review](docs/release-review.md), and [third-party notices](THIRD_PARTY.md). The first release has limited real-replay coverage; it does not claim support for every GT6 replay variant.
 
